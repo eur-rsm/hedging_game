@@ -1,0 +1,96 @@
+h3 {
+  margin: 0;
+}
+
+h4 {
+  margin: 0;
+}
+
+h5 {
+  margin: 0;
+}
+
+table, th, td {
+  font-size: 13px;
+  vertical-align: center;
+}
+
+.top {
+  vertical-align: top;
+}
+
+.invisible {
+  opacity:0;
+}
+
+input[type="text"] {
+  text-align: right;
+  width: 85px;
+}
+
+input[type="text"].left {
+  text-align: left;
+}
+
+
+.zero {
+  width: 0% !important;
+}
+
+.ten {
+  width: 10%  !important;
+}
+
+.twenty {
+  width: 20% !important;
+}
+
+.eighty {
+  width: 80% !important;
+}
+
+.ninety {
+  width: 90% !important;
+}
+
+
+
+.bold {
+  font-weight: bold;
+}
+
+input[type="text"]:disabled {
+  /* background: #EFEFE8;*/
+  color: #000000;
+}
+
+div.header {
+  font-weight: bold;
+}
+
+span.header {
+  font-weight: bold;
+  float: left;
+  padding: 1px 2px 1px 2px;
+  border: 2px;
+}
+
+span.firstCol {
+  float: left;
+  width: 70px;
+}
+
+span.secondCol {
+  float: left;
+  width: 95px;
+}
+
+span.thirdCol {
+  float: left;
+  width: 100px;
+}
+
+span.fourthCol {
+  float: left;
+  width: 50px;
+}

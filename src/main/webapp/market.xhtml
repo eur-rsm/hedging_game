@@ -1,0 +1,140 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  
+  <hr />
+  
+  <c:if test="#{user.isObserver()}">
+    <h:outputText value="#{actionIndex.marketMessage}" />
+    <br />
+  </c:if>
+  
+  <t:panelGrid columns="#{actionIndex.numColumns}">
+    <t:panelGroup colspan="4" styleClass="header">
+      <h:outputText value="Market" />
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.periods}" var="period">
+      <c:if test="#{actionIndex.period == period}">
+        <h:outputText value="#{actionIndex.getPeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:bold;"/>
+      </c:if>
+      <c:if test="#{actionIndex.period != period}">
+        <h:outputText value="#{actionIndex.getPeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:normal;"/>
+      </c:if>
+    </c:forEach>
+    
+    <h:outputText value="Demand" styleClass="firstCol" />
+    <h:outputText value="Expected" styleClass="secondCol" />
+    
+    <c:forEach items="#{actionIndex.metrics}" varStatus="loop">
+      <c:if test="${loop.index != 0}">
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+      </c:if>
+      <h:outputText value="${actionIndex.showMetricNames() ? loop.current.name : ''}" styleClass="thirdCol" />
+      <h:outputText value="${loop.current.unit}" styleClass="fourthCol" />
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText value="${actionIndex.getMarket(period, loop.current.metricId).forecast}"
+                 disabled="true"
+                 id="T#{period.toString().concat('_mf').concat( loop.current.metricId )}"
+                 styleClass="${period &lt;= 1 ? 'invisible' : '' }">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+    </c:forEach>
+    
+    <h:outputText value="&#160;" styleClass="firstCol" />
+    <h:outputText value="StdDev" styleClass="secondCol" />
+    
+    <c:forEach items="#{actionIndex.metrics}" varStatus="loop">
+      <c:if test="${loop.index != 0}">
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+      </c:if>
+      <h:outputText value="${actionIndex.showMetricNames() ? loop.current.name : ''}" styleClass="thirdCol" />
+      <h:outputText value="${loop.current.unit}" styleClass="fourthCol" />
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText value="${actionIndex.getMarket(period, loop.current.metricId).sigma}"
+                 disabled="true"
+                 id="T#{period.toString().concat('_ms').concat( loop.current.metricId )}"
+                 styleClass="${period &lt;= 1 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+    </c:forEach>
+    
+    <h:outputText value="Demand" styleClass="firstCol" />
+    <h:outputText value="Actual" styleClass="secondCol" />
+    
+    <c:forEach items="#{actionIndex.metrics}" varStatus="loop">
+      <c:if test="${loop.index != 0}">
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+      </c:if>
+      <h:outputText value="${actionIndex.showMetricNames() ? loop.current.name : ''}" styleClass="thirdCol" />
+      <h:outputText value="${loop.current.unit}" styleClass="fourthCol" />
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText value="${(period &gt; 1 and period == actionIndex.period) ? '' : actionIndex.getMarket(period, loop.current.metricId).load}"
+                 disabled="true"
+                 id="T#{period.toString().concat('_l').concat( loop.current.metricId )}"
+                 styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+    </c:forEach>
+    
+    <h:outputText value="Price" styleClass="firstCol" />
+    <h:outputText value="&#160;" styleClass="secondCol" />
+    
+    <c:forEach items="#{actionIndex.metrics}" varStatus="loop">
+      <c:if test="${loop.index != 0}">
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+      </c:if>
+      <h:outputText value="${actionIndex.showMetricNames() ? loop.current.name : ''}" styleClass="thirdCol" />
+      <h:outputText value="${loop.current.priceUnit}" styleClass="fourthCol" />
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText value="${(period != 0 and period == actionIndex.period) ? '' : actionIndex.getMarket(period, loop.current.metricId).price}"
+                 disabled="true"
+                 id="T#{period.toString().concat('_m').concat( loop.current.metricId )}"
+                 styleClass="${period == 0 ? 'invisible' : 'bold' }">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+    </c:forEach>
+    
+    
+    
+    <c:if test="${actionIndex.numSpreads != 0}">
+      
+      <c:forEach var="i" begin="1" end="#{actionIndex.numColumns}">
+        <h:outputText value="&#160;"/>
+      </c:forEach>
+      
+      <c:forEach items="#{actionIndex.metrics}" varStatus="loop">
+        <c:if test="${loop.current.spreadName != null}">
+          <t:panelGroup colspan="3">
+            <h:outputText value="${loop.current.spreadName}" title="Power - ${loop.current.spreadMultiplier} * ${loop.current.name}"/>
+          </t:panelGroup>
+          <h:outputText value="${loop.current.spreadUnit}"/>
+          <c:forEach items="#{actionIndex.periods}" var="period">
+            <h:inputText value="#{actionIndex.getMarketSpread(period, loop.current.metricId)}"
+                         disabled="true" style="font-weight: bold">
+              <f:convertNumber integerOnly="true" type="number"/>
+            </h:inputText>
+          </c:forEach>
+        </c:if>
+      </c:forEach>
+    
+    </c:if>
+    
+    <c:forEach var="i" begin="1" end="#{actionIndex.numColumns}">
+      <h:outputText value="&#160;"/>
+    </c:forEach>
+  
+  </t:panelGrid>
+</ui:composition>

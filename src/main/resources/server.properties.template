@@ -1,0 +1,30 @@
+# Database Configuration information for the Hedging Game Server
+
+db.database = hedging_game
+db.dbms = mysql
+db.dbUrl = localhost
+db.username = localUsername
+db.password = localPassword
+
+# Comma separated list of usernames who are admin
+admin_users = admin
+
+# Comma separated list of usernames who are observer
+observer_users = observer
+
+# Some constants here
+
+# Delay before users are logged out automagically
+max_inactive_seconds = 3600
+
+# Whether or not to show the forecasting block
+show_forecasting = false
+
+# Whether to limit forecasting to on/off
+limit_forecasting_onoff = true
+
+# Whether or not to limit hedges to net position
+limit_hedging_position = false
+
+# Whether or not to limit hedges by sign (negative for buy, positive for sell) 
+limit_hedging_sign = true

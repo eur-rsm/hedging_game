@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:head>
+  <title>Portfolio Management Game | Administrator</title>
+  <script type="text/javascript" charset="utf8"
+          src="resources/js/admin.js"></script>
+
+  <script type="text/javascript"><!--
+    $(document).ready( function(){
+      currentPeriod = '#{actionIndex.period}';
+      plantTypes = '#{actionAdmin.plantTypesJSON}';
+      if ( plantTypes ) {
+        plantTypes = JSON.parse( plantTypes );
+      }
+    } );
+  --></script>
+  
+  <link rel="stylesheet" type="text/css" href="resources/css/index.css"/>
+</h:head>
+
+<h:body>
+  <h:form rendered="#{user.admin}">
+    <p:growl id="growl" showSummary="true" showDetail="true"
+             escape="false" widgetVar="growl"/>
+    <!-- Receive notify message -->
+    <p:socket onMessage="handleMessageNotify"
+              channel="#{adminResource.channel}"/>
+    <p:socket onMessage="handleMessageTimer" onMessagePublished=""
+              channel="#{timerResource.channel}"/>
+  </h:form>
+  
+  <h:form id="formLogout" rendered="#{user.loggedIn and user.admin}"
+          style="margin-bottom: -5px;">
+    <img src="resources/img/taccy.png" alt="logo" style="height: 40px;"/>
+
+    <h1 style="display: inline;  position: relative; top: -10px;">
+      Portfolio Management Game</h1>
+    <t:panelGrid columns="2" style="float: right;">
+      <h:link rendered="#{user.loggedIn}" outcome="game" value="Go to GAME" />
+      <p:commandButton value="Logout" action="#{actionLogin.logout}" ajax="false" />
+    </t:panelGrid>
+  </h:form>
+
+  <p:tabView id="tabs" rendered="#{user.loggedIn and user.admin}"
+    style="overflow-x:auto">
+    
+    <p:tab title="Admin">
+      
+      <h:form id="form3" rendered="#{user.admin}" enctype="multipart/form-data">
+      
+        <p:panelGrid columns="11">
+          <h:outputText value="Active" styleClass="header" />
+          <h:outputText value="Name" styleClass="header" />
+          <h:outputText value="Timestamp" styleClass="header" />
+          <h:outputText value="Market Setup" styleClass="header" />
+          <h:outputText value="Plants/User" styleClass="header" />
+          <h:outputText value="Plant Setup" styleClass="header" />
+          <h:outputText value="Parameters" styleClass="header" />
+          <h:outputText value="Market Info" styleClass="header" />
+          <h:outputText value="Cost Info" styleClass="header" />
+          <h:outputText value="Price Limits" styleClass="header" />
+          <h:outputText value="" styleClass="header" />
+          
+          <c:forEach items="#{actionAdmin.games}" var="game">
+            <p:selectBooleanCheckbox
+              value="#{actionAdmin.activeGames[game.gameId]}" disabled="true"/>
+            <h:outputText value="${game.name}" />
+            <h:outputText value="${game.stamp}" />
+            <h:commandButton value="Download" action="#{actionAdmin.downloadMarket(game)}" />
+            <h:outputText value="${game.numPlants}" />
+
+            <t:panelGrid columns="5">
+              <c:forEach items="#{actionAdmin.getGamePlants(game).entrySet()}" var="entry">
+                <h:outputText value="${entry.key.name}" />
+                <c:forEach items="${entry.key.metrics}" var="metric">
+                  <h:inputText value="${entry.value.size()}"
+                      disabled="true" />
+                  x
+                  <h:inputText value="${actionAdmin.getGamePlantValue(game, entry.value.get(0), metric)}"
+                      disabled="true" />
+                  <h:outputText value="${metric.unit}" />
+                </c:forEach>
+              </c:forEach> 
+            </t:panelGrid>
+            
+            <t:panelGrid columns="3">
+              <c:forEach items="#{actionAdmin.getGamePlants(game).entrySet()}" var="entry">
+                <c:forEach items="${entry.key.parameters}" varStatus="loop">
+                  <c:if test="${!loop.current.auto}">
+                    <c:if test="${loop.index == 0}">
+                      <h:outputText value="${entry.key.name}" />
+                    </c:if>
+                    <c:if test="${loop.index != 0}">
+                      <h:outputText value="&nbsp;" />
+                    </c:if>
+                    <h:outputText value="${loop.current.name}" />
+                    <h:inputText value="${entry.value.get(0).getParameter(loop.current.name)}" disabled="true" />
+                  </c:if>
+                </c:forEach>
+              </c:forEach>
+            </t:panelGrid>
+            
+            <p:selectBooleanCheckbox
+              value="#{actionAdmin.marketInfoGames[game.gameId]}" disabled="true"/>
+            
+            <p:selectBooleanCheckbox
+              value="#{actionAdmin.costInfoGames[game.gameId]}" disabled="true"/>
+            
+            <h:panelGrid columns="2">
+              <h:outputText value="min" /> <h:inputText value="#{game.minPrice}" disabled="true" />
+              <h:outputText value="max" /> <h:inputText value="#{game.maxPrice}" disabled="true" />
+            </h:panelGrid>
+            
+            <h:panelGrid>
+              <h:commandButton value="Activate" action="#{actionAdmin.activateGame(game.gameId)}"
+                disabled="#{actionAdmin.activeGames[game.gameId]}" />
+              <h:commandButton value="Export" action="#{actionAdmin.exportGame(game.gameId)}" />
+            </h:panelGrid>
+          </c:forEach>
+          
+          <p:selectBooleanCheckbox value="#{actionAdmin.newGame.active}" />
+          
+          <h:inputText value="#{actionAdmin.newGame.name}" class="left" />
+          <h:outputText value="" />
+          <h:inputFile value="#{actionAdmin.newGameMarket}" accept=".csv,text/csv" />
+          <h:selectOneMenu value="#{actionAdmin.newGame.numPlants}">
+            <c:forEach var="i" begin="1" end="4">
+              <f:selectItem itemValue="${i}" itemLabel="${i} plants" />
+            </c:forEach>
+          </h:selectOneMenu>
+          
+          <h:panelGrid columns="5">
+            <c:forEach items="#{actionAdmin.plantTypes}" var="type">
+              <h:outputText value="${type.name}" />
+              <h:inputText value="#{actionAdmin.newGamePlantsCount[type.typeId]}" />
+              x
+              <h:inputText value="#{actionAdmin.newGamePlantsCapacity[type.typeId]}" />
+              MWh
+            </c:forEach>
+          </h:panelGrid>
+          
+          <h:panelGrid columns="3">
+            <c:forEach items="#{actionAdmin.plantTypes}" var="type">
+              <c:forEach items="${type.parameters}" varStatus="loop">
+                <c:if test="${!loop.current.auto}">
+                  <c:if test="${loop.index == 0}">
+                    <h:outputText value="${type.name}" />
+                  </c:if>
+                  <c:if test="${loop.index != 0}">
+                    <h:outputText value="&nbsp;" />
+                  </c:if>
+                  <h:outputText value="${loop.current.name}" />
+                  <h:inputText value="#{actionAdmin.newGamePlantsParams[type.typeId][loop.index]}"
+                    disabled="${loop.current.auto}" />
+                </c:if>
+              </c:forEach>
+            </c:forEach>
+          </h:panelGrid>
+          
+          <p:selectBooleanCheckbox value="#{actionAdmin.newGame.showMarketInfo}" />
+          
+          <p:selectBooleanCheckbox value="#{actionAdmin.newGame.showCostInfo}" />
+          
+          <h:panelGrid columns="2">
+            <h:outputText value="min" /> <h:inputText value="#{actionAdmin.newGame.minPrice}" />
+            <h:outputText value="max" /> <h:inputText value="#{actionAdmin.newGame.maxPrice}" />
+          </h:panelGrid>
+          
+          <h:commandButton value="Create" action="#{actionAdmin.createGame}" />
+          
+        </p:panelGrid>
+        
+      </h:form>
+      
+    </p:tab>
+    
+  
+  </p:tabView>
+  
+  
+  <h:form rendered="#{user.loggedIn and !user.admin}">
+    <meta http-equiv="REFRESH" content="0;url=index.xhtml"/>
+  </h:form>
+    
+  <h:form rendered="#{!user.loggedIn}">
+    <h3>Redirect to login...</h3>
+    <meta http-equiv="REFRESH" content="1;url=login.xhtml"/>
+  </h:form>
+  
+</h:body>
+</html>

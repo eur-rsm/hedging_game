@@ -1,0 +1,113 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <hr />
+  
+  <t:panelGrid columns="4" style="float:left; margin-right:50px;" rendered="#{!user.isObserver()}">
+  
+    <t:panelGroup colspan="4" styleClass="header">
+      <h:outputText value="My Plants"/>
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.plants}" var="plant">
+      
+      <h:outputText value="${plant.name}" styleClass="firstCol" />
+      <h:outputText styleClass="secondCol" />
+      
+      <c:forEach items="#{plant.getParameters(false)}" varStatus="loop">
+        <c:if test="${loop.index!=0}">
+          <h:outputText styleClass="firstCol" />
+          <h:outputText styleClass="secondCol" />
+        </c:if>
+        <h:outputText styleClass="" value="${loop.current.name}" />
+        <h:inputText disabled="true" value="${loop.current.value}" />
+        
+      </c:forEach>
+      
+      <c:if test="${plant.type.isVariableOutput()}">
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+        <h:outputText value="Actual Output (MWh)" />
+        <h:inputText value="${actionIndex.isPenultimatePeriodPlus() ? plant.getRealOutput() : ''}"
+          rendered="true"
+          id="margcost_r${plant.plantId}"
+          disabled="true" />
+      </c:if>
+      
+      <t:panelGroup colspan="4">
+        <h:inputText value="${plant.getMarginalCostPrice()}"
+          styleClass="invisible"
+          rendered="true"
+          id="margcost_p${plant.plantId}"
+          disabled="true" />
+        <h:inputText value="${plant.getRampUpCost()}"
+          styleClass="invisible"
+          rendered="true"
+          id="rupcost_p${plant.plantId}"
+          disabled="true" />
+      </t:panelGroup>
+      
+    </c:forEach>
+  </t:panelGrid>
+  
+  
+  <t:panelGrid columns="4" rendered="#{actionIndex.showMarketInfo()}">
+    
+    <t:panelGroup colspan="4" styleClass="header">
+      <h:outputText value="Market Info"/>
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.marketInfo.entrySet()}" var="entry">
+      
+      <h:outputText value="${entry.key.name}" styleClass="firstCol" />
+      <h:outputText styleClass="secondCol" />
+      
+      <c:forEach items="${entry.value.entrySet()}" varStatus="loop">
+        <c:if test="${loop.index!=0}">
+          <h:outputText styleClass="firstCol" />
+          <h:outputText styleClass="secondCol" />
+        </c:if>
+        <h:outputText value="${loop.current.key}" style="width:250px !important;"/>
+        <h:inputText disabled="true" value="${loop.current.value}" styleClass=""/>
+      </c:forEach>
+      
+      <c:forEach var="i" begin="1" end="4">
+        <h:outputText value="&#160;"/>
+      </c:forEach>
+      
+    </c:forEach>
+    
+    <t:panelGroup colspan="4" styleClass="header" rendered="#{actionIndex.showCostInfo()}">
+      <h:outputText value="Cost Info"/>
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.costInfo.entrySet()}" var="entry" rendered="#{actionIndex.showCostInfo()}">
+      
+      <h:outputText value="${entry.key.name}" styleClass="firstCol" />
+      <h:outputText styleClass="secondCol" />
+      
+      <c:forEach items="${entry.value.entrySet()}" varStatus="loop">
+        <c:if test="${loop.index!=0}">
+          <h:outputText styleClass="firstCol" />
+          <h:outputText styleClass="secondCol" />
+        </c:if>
+        <h:outputText value="${loop.current.key}" style="width:250px !important;"/>
+        <h:inputText disabled="true" value="${loop.current.value}" styleClass=""/>
+      </c:forEach>
+      
+      <c:forEach var="i" begin="1" end="4">
+        <h:outputText value="&#160;"/>
+      </c:forEach>
+      
+    </c:forEach>
+    
+  </t:panelGrid>
+  
+  <div style="display:block;clear:both" />
+  
+</ui:composition>

@@ -1,0 +1,174 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <script type="text/javascript" charset="utf8"
+          src="resources/js/position_mtm.js"></script>
+
+  <hr />
+  <t:panelGrid columns="#{actionIndex.numColumns}">
+    <t:panelGroup colspan="4" styleClass="header">
+      <h:outputText value="Financial Position" />
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.periods}" var="period">
+      <c:if test="#{actionIndex.period == period}">
+        <h:outputText value="#{actionIndex.getPeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:bold;"/>
+      </c:if>
+      <c:if test="#{actionIndex.period != period}">
+        <h:outputText value="#{actionIndex.getPeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:normal;"/>
+      </c:if>
+    </c:forEach>
+
+    <c:forEach items="#{actionIndex.plants}" var="plant">
+      
+      <h:outputText value="${plant.name}" styleClass="firstCol" />
+      <h:outputText styleClass="secondCol" />
+      <h:outputText value="Revenue" styleClass="thirdCol" />
+      <h:outputText value="€" styleClass="fourthCol" />
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText value="#{actionIndex.getHedgeMtM(period, plant.plantId)}"
+          disabled="true"
+          styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number" />
+        </h:inputText>
+      </c:forEach>
+      
+      <c:if test="${!plant.type.isVariableOutput()}">
+        <h:outputText value="" styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+        <h:outputText value="Marginal Cost" styleClass="thirdCol" />
+        <h:outputText value="€" styleClass="fourthCol" />
+        <c:forEach items="#{actionIndex.periods}" var="period">
+          <h:inputText value="#{actionIndex.getCostMarginalMtM(period, plant.plantId)}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+            <f:convertNumber integerOnly="true" type="number" />
+          </h:inputText>
+        </c:forEach>
+        
+        <h:outputText value="" styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+        <h:outputText value="Ramping Cost" styleClass="thirdCol" />
+        <h:outputText value="€" styleClass="fourthCol" />
+        <c:forEach items="#{actionIndex.periods}" var="period">
+          <h:inputText value="#{actionIndex.getCostRampUpMtM(period, plant.plantId)}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+            <f:convertNumber integerOnly="true" type="number" />
+          </h:inputText>
+        </c:forEach>
+        
+        <h:outputText value="" styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" />
+        <h:outputText value="Profit" styleClass="thirdCol" />
+        <h:outputText value="€" styleClass="fourthCol" />
+        <c:forEach items="#{actionIndex.periods}" var="period">
+          <h:inputText value="#{actionIndex.getProfitMtM( period, plant.plantId)}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+            <f:convertNumber integerOnly="true" type="number" />
+          </h:inputText>
+        </c:forEach>
+      </c:if>
+      
+    </c:forEach>
+    
+    <c:forEach var="i" begin="1" end="#{actionIndex.numColumns}">
+      <h:outputText value="&#160;" />
+    </c:forEach>
+    
+    <c:if test="#{actionIndex.numPlants > 1}">
+      <h:outputText value="Total" styleClass="firstCol"/>
+      <h:outputText styleClass="secondCol"/>
+      <h:outputText value="Revenue" styleClass="thirdCol"/>
+      <h:outputText value="€" styleClass="fourthCol"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_h_mtm')}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Cost"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_c_mtm')}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Profit/Period"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_p_mtm')}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : 'bold'}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Asset"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_a_mtm')}"
+            disabled="true"
+            styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Total/Period"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_t_mtm')}"
+            disabled="true" styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Profit"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_tp_mtm')}"
+            disabled="true" styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <h:outputText/>
+      <h:outputText/>
+      <h:outputText value="Total"/>
+      <h:outputText value="€"/>
+      <c:forEach items="#{actionIndex.periods}" var="period">
+        <h:inputText id="T#{period.toString().concat('_tt_tt_mtm')}"
+            disabled="true" styleClass="${period == 0 ? 'invisible' : ''}">
+          <f:convertNumber integerOnly="true" type="number"/>
+        </h:inputText>
+      </c:forEach>
+      
+      <c:forEach var="i" begin="1" end="#{actionIndex.numColumns}">
+        <h:outputText value="&#160;"/>
+      </c:forEach>
+      
+    </c:if>
+    
+  </t:panelGrid>
+</ui:composition>

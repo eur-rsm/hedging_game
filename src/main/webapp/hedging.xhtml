@@ -1,0 +1,117 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <script type="text/javascript" charset="utf8"
+          src="resources/js/hedging.js"></script>
+
+  <hr />
+  <t:panelGrid columns="#{actionIndex.numColumns + 1}" id="hedging">
+    <t:panelGroup colspan="4" styleClass="header">
+      <h:outputText value="Market Bidding"/>
+    </t:panelGroup>
+    
+    <c:forEach items="#{actionIndex.hedgePeriods}" var="period">
+      <c:if test="#{actionIndex.isPeriod(period)}">
+        <h:outputText value="#{actionIndex.getHedgePeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:bold;"/>
+      </c:if>
+      <c:if test="#{!actionIndex.isPeriod(period)}">
+        <h:outputText value="#{actionIndex.getHedgePeriodName(period)}" styleClass="${period == 0 ? 'invisible' : 'header'}" style="font-weight:normal;"/>
+      </c:if>
+    </c:forEach>
+    
+    <c:forEach items="#{actionIndex.plants}" var="plant">
+    
+      <h:outputText value="${plant.name}" styleClass="firstCol"/>
+      
+      <c:forEach items="#{plant.metrics}" varStatus="loop">
+        
+        <c:if test="${loop.index!=0}">
+          <h:outputText styleClass="firstCol" />
+        </c:if>
+        <h:outputText styleClass="secondCol" value="Bid Q" />
+        <h:outputText value="${actionIndex.showMetricNames() ? loop.current.name : ''}" styleClass="thirdCol" />
+        <h:outputText value="${loop.current.unit}" styleClass="fourthCol" />
+        
+        <c:forEach items="#{actionIndex.hedgePeriods}" var="period">
+          <c:if test="${period == 0}">
+            <h:inputText styleClass="invisible" disabled="true"
+              id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedq') }"
+              value="0" />
+          </c:if>
+          <c:if test="${period != 0 and actionIndex.isPeriod(period)}">
+            <h:inputText value="#{actionIndex.getHedge( period, plant.plantId, loop.current.metricId ).bidQuantityAbs}"
+                         disabled="${period == 0 or actionIndex.isHedgeQuantityDisabled( period, plant.plantId, loop.current.metricId )}"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedq') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})">
+              <f:convertNumber integerOnly="true" type="number"/>
+              <f:validator validatorId="inputValidator"/>
+            </h:inputText>
+          </c:if>
+          <c:if test="${period != 0 and !actionIndex.isPeriod(period)}">
+            <h:inputText value="#{actionIndex.getHedge( period, plant.plantId, loop.current.metricId ).clearingQuantityAbs}"
+                         disabled="true"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedq') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})">
+              <f:convertNumber integerOnly="true" type="number"/>
+              <f:validator validatorId="inputValidator"/>
+            </h:inputText>
+          </c:if>
+        </c:forEach>
+        
+        <h:outputText styleClass="firstCol" />
+        <h:outputText styleClass="secondCol" value="Bid P" />
+        <h:outputText styleClass="thirdCol" />
+        <h:outputText value="${loop.current.priceUnit}" styleClass="fourthCol" />
+        
+        <c:forEach items="#{actionIndex.hedgePeriods}" var="period">
+          <c:if test="${period == 0}">
+            <h:inputText value="&#160;" styleClass="invisible" disabled="true" />
+          </c:if>
+          <c:if test="${period != 0 and actionIndex.isPeriod(period)}">
+            <c:if test="#{actionIndex.isHedgePriceDisabled( period, plant.plantId, loop.current.metricId )}">
+              <h:panelGroup>
+                <h:inputText value="N/A"
+                         disabled="true"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedf') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})" />
+                <h:inputHidden value="#{actionIndex.getHedge( period, plant.plantId, loop.current.metricId ).bidPrice}"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedp') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})" />
+              </h:panelGroup>
+            </c:if>
+            <c:if test="#{! actionIndex.isHedgePriceDisabled( period, plant.plantId, loop.current.metricId )}">
+              <h:inputText value="#{actionIndex.getHedge( period, plant.plantId, loop.current.metricId ).bidPrice}"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedp') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})">
+                <f:convertNumber integerOnly="true" type="number"/>
+                <f:validator validatorId="inputValidator"/>
+              </h:inputText>
+            </c:if>
+            
+          </c:if>
+          <c:if test="${period != 0 and !actionIndex.isPeriod(period)}">
+            <h:inputText value="#{actionIndex.getHedge( period, plant.plantId, loop.current.metricId ).clearingPrice}"
+                         disabled="true"
+                         id="T#{period.toString().concat('_p').concat( plant.plantId ).concat('_m').concat( loop.current.metricId ).concat('_hedp') }"
+                         onblur="updateHedging(#{actionIndex.round}, #{actionIndex.period})">
+              <f:convertNumber integerOnly="true" type="number"/>
+              <f:validator validatorId="inputValidator"/>
+            </h:inputText>
+          </c:if>
+        </c:forEach>
+        
+      </c:forEach>
+    
+    </c:forEach>
+    
+    <c:forEach var="i" begin="1" end="#{actionIndex.numColumns + 1}">
+      <h:outputText value="&#160;"/>
+    </c:forEach>
+    
+  </t:panelGrid>
+</ui:composition>

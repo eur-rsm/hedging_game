@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+<h:body>
+  <h2>Register for an Account</h2>
+  <h:form id="registerForm">
+    <h:panelGrid columns="2">
+      <h:outputText value="Username:"/>
+      <h:panelGroup>
+        <h:inputText value="#{actionRegister.username}"/>
+      </h:panelGroup>
+
+      <h:outputText value="Password:"/>
+      <h:panelGroup>
+        <h:inputSecret value="#{actionRegister.password1}"/>
+      </h:panelGroup>
+
+      <h:outputText value="Confirm Password:"/>
+      <h:panelGroup>
+        <h:inputSecret value="#{actionRegister.password2}"/>
+      </h:panelGroup>
+
+      <h:outputText value="" />
+      <h:panelGroup>
+        <h:commandButton value="Submit Registration"
+                         action="#{actionRegister.register}"/>
+      </h:panelGroup>
+      <h:panelGroup colspan="2">
+        <h:outputText style="color:#a00;" value="#{actionRegister.message}" />
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:form>
+
+  <h:form rendered="#{user.loggedIn}">
+    <meta http-equiv="REFRESH" content="0; url=index.xhtml"/>
+  </h:form>
+</h:body>
+</html>
